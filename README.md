@@ -1,4 +1,4 @@
-# Simple DevOps App (Minimal)
+# Simple DevOps App 
 
 A tiny FastAPI app with:
 - **Multi-stage Dockerfile**
@@ -21,14 +21,65 @@ docker stack services simple-app
 ```
 
 ## CI
-On push/PR, the workflow lints Python (ruff, flake8), lints Dockerfile (hadolint), then builds the image.
+On push, the workflow lints Python (ruff, flake8), lints Dockerfile (hadolint), then builds the image.
 
 ## Endpoints
 - `GET /`       → app info (name, version, hostname)
 - `GET /healthz`→ status ok (for probes)
 - `GET /time`   → current UTC timestamp
 
-## Submit
-1. Create a GitHub repo (e.g., `devops-simple-app-<yourname>`)
-2. Push this project
-3. Share the repo URL
+## 🧭 Architecture Overview
+      ┌────────────────────┐
+      │    Developer       │
+      │ (pushes to GitHub) │
+      └─────────┬──────────┘
+                │
+                ▼
+      ┌────────────────────┐
+      │ GitHub Actions CI  │
+      │ - Lint (Ruff, Flake8, Hadolint)
+      │ - Build Docker image
+      └─────────┬──────────┘
+                │
+                ▼
+      ┌────────────────────┐
+      │     Docker Image   │
+      │ (multi-stage build)│
+      └─────────┬──────────┘
+                │
+                ▼
+      ┌────────────────────┐
+      │   Docker Swarm     │
+      │ - 2 replicas       │
+      │ - Rolling updates  │
+      └─────────┬──────────┘
+                │
+                ▼
+      ┌────────────────────┐
+      │    User Browser    │
+      │ http://localhost:8000 │
+      └────────────────────┘
+
+---
+
+## 🧱 Dockerfile Explanation
+
+### **Stage 1 – Builder**
+- Based on `python:3.12-slim`
+- Installs build tools and compiles dependencies into **Python wheels**
+- Caches dependencies for faster builds
+
+### **Stage 2 – Runtime**
+- Also based on `python:3.12-slim`
+- Installs prebuilt wheels (no network)
+- Adds app code
+- Runs as a **non-root user** on port **8000**
+
+---
+
+## 🚀 Run Locally (Docker Compose)
+
+```bash
+docker compose up --build
+
+
