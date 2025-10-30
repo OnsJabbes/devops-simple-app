@@ -1,3 +1,5 @@
+![CI](https://github.com/OnsJabbes/devops-simple-app/actions/workflows/ci.yml/badge.svg)
+
 # Simple DevOps App 
 
 A tiny FastAPI app with:
@@ -71,10 +73,8 @@ On push, the workflow lints Python (ruff, flake8), lints Dockerfile (hadolint), 
 
 ### **Stage 2 – Runtime**
 - Also based on `python:3.12-slim`
-- Installs prebuilt wheels (no network)
-- Adds app code
-- Runs as a **non-root user** on port **8000**
 
+runs the FastAPI app securely with only what’s needed — resulting in a clean, fast, and production-grade container.
 ---
 
 ## 🚀 Run Locally (Docker Compose)
